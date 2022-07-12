@@ -30,6 +30,15 @@ class Extract:
     
     def init_env(self):
         codeql_path = subprocess.check_output(["which", "codeql"]).decode()
+        if codeql_path.endswith('\n'):
+            codeql_path = codeql_path[:-1]
+        try:
+            tmp_path = os.readlink(codeql_path)
+            codeql_path = tmp_path
+        except Exception as e:
+            print(e)
+            pass
+        print(codeql_path)
         codeql_home = os.path.dirname(codeql_path)
         self.codeql_home = codeql_home
         print(f"[*extract_log*] codeql_home : {codeql_home}")
