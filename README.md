@@ -2,6 +2,13 @@
 
 Create CodeQL database directly from Java source code without compiling
 
+## 更新
+合并class2java.py，自动解压和反编译
+```bash
+python3 run.py codedb_name path/to/jarfile path/to/store/srccode [-l [lib ...]] [-ld [libdir ...]]
+```
+
+
 ## Require
 
 1. Installed CodeQL

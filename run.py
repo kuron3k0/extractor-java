@@ -4,12 +4,21 @@ import sys
 import subprocess
 import glob
 import argparse
-
+import zipfile
 
 class Extract:
-    def __init__(self, db, srcroot, lib, libdir):
+    def __init__(self, db, jar, srcroot, lib, libdir):
+        self.jar = jar
         self.dbname = db
         self.srcroot = srcroot
+        if not os.path.exists(srcroot):
+            os.mkdir(srcroot)
+        zfile = zipfile.ZipFile(jar, 'r')
+        for f in zfile.namelist():
+            zfile.extract(f, srcroot)
+        zfile.close()
+        os.system('java -cp java-decompiler.jar org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler -hdc=0 -dgs=1 -rsy=1 -rbr=1 -lit=1 -nls=1 -mpm=60 {} {}'.format(srcroot,srcroot))
+        
         if lib:
             self.libs = lib
         else:
@@ -96,7 +105,8 @@ class Extract:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='CodeQL java extractor.')
     parser.add_argument('db', help='codeql database name')
-    parser.add_argument('srcroot', help='java source code dir')
+    parser.add_argument('jarfile', help='jarfile to decompile')
+    parser.add_argument('srcroot', help='java source code dir after decompile')
     parser.add_argument('-l', '--lib', nargs='*', help='lib path')
     parser.add_argument('-ld', '--libdir', nargs='*', help='lib dir')
 
@@ -110,5 +120,5 @@ if __name__ == "__main__":
     print(args.srcroot)
     print(args.lib)
     print(args.libdir)
-    extractor = Extract(args.db, args.srcroot, args.lib, args.libdir)
+    extractor = Extract(args.db, args.jarfile, args.srcroot, args.lib, args.libdir)
     extractor.run()
